@@ -16,6 +16,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include "AP_MotorsMatrix.h"
 #include <AP_Vehicle/AP_Vehicle.h>
+#include <AP_Math/AP_Math.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -117,7 +118,7 @@ void AP_MotorsMatrix::set_update_rate(uint16_t speed_hz)
     // record requested speed
     _speed_hz = speed_hz;
 
-    uint32_t mask = 0;
+    uint16_t mask = 0;
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
             mask |= 1U << i;
@@ -184,15 +185,15 @@ void AP_MotorsMatrix::output_to_motors()
 
 // get_motor_mask - returns a bitmask of which outputs are being used for motors (1 means being used)
 //  this can be used to ensure other pwm outputs (i.e. for servos) do not conflict
-uint32_t AP_MotorsMatrix::get_motor_mask()
+uint16_t AP_MotorsMatrix::get_motor_mask()
 {
-    uint32_t motor_mask = 0;
+    uint16_t motor_mask = 0;
     for (uint8_t i = 0; i < AP_MOTORS_MAX_NUM_MOTORS; i++) {
         if (motor_enabled[i]) {
             motor_mask |= 1U << i;
         }
     }
-    uint32_t mask = motor_mask_to_srv_channel_mask(motor_mask);
+    uint16_t mask = motor_mask_to_srv_channel_mask(motor_mask);
 
     // add parent's mask
     mask |= AP_MotorsMulticopter::get_motor_mask();
@@ -853,12 +854,121 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                 case MOTOR_FRAME_TYPE_FTC: {
                     _frame_type_string = "FTC";
                     // Custom config (Avijith-FTC)
+                    // https://www.iforce2d.net/mixercalc/
+                    // Config Avijith-FTC-T1:
+                    // 3 6 v
+                    // 4 5 v
+                    // 2 1 v
+                    // 4 2 h
+                    // 5 1 h
+                    // 1 3 2000
+                    // 3 5 2000
+                    // 5 1 2000
+                    // 2 4 2000
+                    // 4 6 2000
+                    // 6 2 2000
+                    // Avijith-FTC-T1:
+                    /*
+                    add_motor_raw(AP_MOTORS_MOT_1, -0.864, -0.496, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 1);
+                    add_motor_raw(AP_MOTORS_MOT_2, -0.864, 0.496, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
+                    add_motor_raw(AP_MOTORS_MOT_3, 0, 1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
+                    add_motor_raw(AP_MOTORS_MOT_4, 0.864, 0.496, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 4);
+                    add_motor_raw(AP_MOTORS_MOT_5, 0.864, -0.496, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 5);
+                    add_motor_raw(AP_MOTORS_MOT_6, 0, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
+                    */
+                    // Config Avijith-FTC-T2:
+                    //      C3
+                    // W4  \||/  C2
+                    // C5  /||\  W1
+                    //      W6
+                    // 3 6 v
+                    // 4 5 v
+                    // 2 1 v
+                    // 4 2 h
+                    // 5 1 h
+                    // 1 3 2000
+                    // 3 5 2000
+                    // 5 1 4000
+                    // 2 4 4000
+                    // 4 6 2000
+                    // 6 2 2000
+                    // 3 6 6000
+                    // 1 2 2000
+                    // 4 5 2000
+                    // Avijith-FTC-T2:
+                    /*
+                    add_motor_raw(AP_MOTORS_MOT_1, -0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 1);
+                    add_motor_raw(AP_MOTORS_MOT_2, -0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
+                    add_motor_raw(AP_MOTORS_MOT_3, 0, 1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
+                    add_motor_raw(AP_MOTORS_MOT_4, 0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 4);
+                    add_motor_raw(AP_MOTORS_MOT_5, 0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 5);
+                    add_motor_raw(AP_MOTORS_MOT_6, 0, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
+                    */
+                    // Avijith-FTC-T3 (Reshuffle + Avijith values):
+                    // TODO: This one works.
+                    //      C6
+                    // W5  \||/  C1
+                    // C4  /||\  W2
+                    //      W3
+                    /*
+                    add_motor_raw(AP_MOTORS_MOT_1, -0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  2);
+                    add_motor_raw(AP_MOTORS_MOT_2, 0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 5);
+                    add_motor_raw(AP_MOTORS_MOT_3, 0, 1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 6);
+                    add_motor_raw(AP_MOTORS_MOT_4, 0, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 3);
+                    add_motor_raw(AP_MOTORS_MOT_5, -0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  1);
+                    add_motor_raw(AP_MOTORS_MOT_6, 0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  4);
+                    */
+                    // Avijith-FTC-T4 (Aditya Reshuffle + Avijith values):
+                    //      C6
+                    // W5  \||/  C1
+                    // C4  /||\  W2
+                    //      W3
+                    /*
+                    add_motor_raw(AP_MOTORS_MOT_1, -0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  1);
+                    add_motor_raw(AP_MOTORS_MOT_2, -0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  2);
+                    add_motor_raw(AP_MOTORS_MOT_3, 0, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 3);
+                    add_motor_raw(AP_MOTORS_MOT_4, 0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  4);
+                    add_motor_raw(AP_MOTORS_MOT_5, 0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 5);
+                    add_motor_raw(AP_MOTORS_MOT_6, 0, 1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 6);
+                    */
+                    // Avijith-FTC-T5 (Aditya Reshuffle 2 + Avijith values):
+                    // TODO: This one works.
+                    //      C6
+                    // W5  \||/  C1
+                    // C4  /||\  W2
+                    //      W3
                     add_motor_raw(AP_MOTORS_MOT_1, 0, 1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 6);
                     add_motor_raw(AP_MOTORS_MOT_2, 0, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 3);
                     add_motor_raw(AP_MOTORS_MOT_3, -0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  2);
                     add_motor_raw(AP_MOTORS_MOT_4, 0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  4);
                     add_motor_raw(AP_MOTORS_MOT_5, 0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 5);
                     add_motor_raw(AP_MOTORS_MOT_6, -0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  1);
+                    // Hexa X:
+                    //   W6   C1
+                    // W5 - x - C2
+                    //   C4   W3
+                    /*
+                    add_motor_raw(AP_MOTORS_MOT_1, -1, 0, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  2);
+                    add_motor_raw(AP_MOTORS_MOT_2, 1, 0, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 5);
+                    add_motor_raw(AP_MOTORS_MOT_3, 0.5, 0.866, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
+                    add_motor_raw(AP_MOTORS_MOT_4, -0.5, -0.866, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 3);
+                    add_motor_raw(AP_MOTORS_MOT_5, -0.5, 0.866, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  1);
+                    add_motor_raw(AP_MOTORS_MOT_6, 0.5, -0.866, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  4);
+                    // Reshuffled:
+                    add_motor_raw(AP_MOTORS_MOT_1, -0.866, 0.5, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
+                    add_motor_raw(AP_MOTORS_MOT_2, 0, 1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
+                    add_motor_raw(AP_MOTORS_MOT_3, 0.866, 0.5, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 3);
+                    add_motor_raw(AP_MOTORS_MOT_4, 0.866, -0.5, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 4);
+                    add_motor_raw(AP_MOTORS_MOT_5, 0, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 5);
+                    add_motor_raw(AP_MOTORS_MOT_6, -0.866, -0.5, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
+                    // Original:
+                    add_motor_raw(AP_MOTORS_MOT_1, -0.866, -0.5, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 1);
+                    add_motor_raw(AP_MOTORS_MOT_2, 0, 1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 2);
+                    add_motor_raw(AP_MOTORS_MOT_3, 0, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
+                    add_motor_raw(AP_MOTORS_MOT_4, 0.866, 0.5, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 4);
+                    add_motor_raw(AP_MOTORS_MOT_5, -0.866, 0.5, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 5);
+                    add_motor_raw(AP_MOTORS_MOT_6, 0.866, -0.5, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 6);
+                    */
                     break;
                 }
                 default:
