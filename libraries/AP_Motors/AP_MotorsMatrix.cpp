@@ -850,6 +850,17 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motors(motors, ARRAY_SIZE(motors));
                     break;
                 }
+                case MOTOR_FRAME_TYPE_FTC: {
+                    _frame_type_string = "FTC";
+                    // Custom config (Avijith-FTC)
+                    add_motor_raw(AP_MOTORS_MOT_1, 0, 1, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 6);
+                    add_motor_raw(AP_MOTORS_MOT_2, 0, -1, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 3);
+                    add_motor_raw(AP_MOTORS_MOT_3, -0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  2);
+                    add_motor_raw(AP_MOTORS_MOT_4, 0.673, -0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  4);
+                    add_motor_raw(AP_MOTORS_MOT_5, 0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 5);
+                    add_motor_raw(AP_MOTORS_MOT_6, -0.673, 0.413, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  1);
+                    break;
+                }
                 default:
                     // hexa frame class does not support this frame type
                     _frame_type_string = "UNSUPPORTED";
