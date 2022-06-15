@@ -34,9 +34,6 @@ public:
         _instance(instance)
     {}
 
-    // Virtual destructor
-    virtual ~AP_Mount_Backend(void) {}
-
     // init - performs any required initialisation for this instance
     virtual void init() = 0;
 
@@ -82,6 +79,12 @@ public:
     // handle a GLOBAL_POSITION_INT message
     bool handle_global_position_int(uint8_t msg_sysid, const mavlink_global_position_int_t &packet);
 
+    // handle GIMBAL_DEVICE_INFORMATION message
+    virtual void handle_gimbal_device_information(const mavlink_message_t &msg) {}
+
+    // handle GIMBAL_DEVICE_ATTITUDE_STATUS message
+    virtual void handle_gimbal_device_attitude_status(const mavlink_message_t &msg) {}
+
 protected:
 
     // update_targets_from_rc - updates angle targets (i.e. _angle_ef_target_rad) using input from receiver
@@ -121,10 +124,15 @@ protected:
     AP_Mount::mount_state &_state;    // references to the parameters and state for this backend
     uint8_t     _instance;  // this instance's number
     Vector3f    _angle_ef_target_rad;   // desired earth-frame roll, tilt and vehicle-relative pan angles in radians
+    Vector3f    _rate_target_rads;      // desired roll, pitch, yaw rate in radians/sec
+    bool        _rate_target_rads_valid;// true if _rate_target_rads should can be used (e.g. RC input is using rate control)
 
 private:
 
-    void rate_input_rad(float &out, const RC_Channel *ch, float min, float max) const;
+    // update rate and angle targets from RC input
+    // current angle target (in radians) should be provided in angle_rad target
+    // rate and angle targets are returned in rate_rads and angle_rad arguments
+    void update_rate_and_angle_from_rc(const RC_Channel *chan, float &rate_rads, float &angle_rad, float angle_min_rad, float angle_max_rad) const;
 };
 
 #endif // HAL_MOUNT_ENABLED

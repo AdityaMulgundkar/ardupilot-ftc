@@ -46,6 +46,7 @@ class AP_Mount_SoloGimbal;
 class AP_Mount_Alexmos;
 class AP_Mount_SToRM32;
 class AP_Mount_SToRM32_serial;
+class AP_Mount_Gremsy;
 
 /*
   This is a workaround to allow the MAVLink backend access to the
@@ -61,6 +62,7 @@ class AP_Mount
     friend class AP_Mount_Alexmos;
     friend class AP_Mount_SToRM32;
     friend class AP_Mount_SToRM32_serial;
+    friend class AP_Mount_Gremsy;
 
 public:
     AP_Mount();
@@ -81,7 +83,8 @@ public:
         Mount_Type_SoloGimbal = 2,      /// Solo's gimbal
         Mount_Type_Alexmos = 3,         /// Alexmos mount
         Mount_Type_SToRM32 = 4,         /// SToRM32 mount using MAVLink protocol
-        Mount_Type_SToRM32_serial = 5   /// SToRM32 mount using custom serial protocol
+        Mount_Type_SToRM32_serial = 5,  /// SToRM32 mount using custom serial protocol
+        Mount_Type_Gremsy = 6           /// Gremsy gimbal using MAVLink v2 Gimbal protocol
     };
 
     // init - detect and initialise all mounts
@@ -114,6 +117,11 @@ public:
     //      this operation requires 60us on a Pixhawk/PX4
     void set_mode_to_default() { set_mode_to_default(_primary); }
     void set_mode_to_default(uint8_t instance);
+
+    // set yaw_lock.  If true, the gimbal's yaw target is maintained in earth-frame meaning it will lock onto an earth-frame heading (e.g. North)
+    // If false (aka "follow") the gimbal's yaw is maintained in body-frame meaning it will rotate with the vehicle
+    void set_yaw_lock(bool yaw_lock) { set_yaw_lock(_primary, yaw_lock); }
+    void set_yaw_lock(uint8_t instance, bool yaw_lock);
 
     // set_angle_targets - sets angle targets in degrees
     void set_angle_targets(float roll, float tilt, float pan) { set_angle_targets(_primary, roll, tilt, pan); }
@@ -179,6 +187,7 @@ protected:
         AP_Float        _pitch_stb_lead;    // pitch lead control gain
 
         MAV_MOUNT_MODE  _mode;              // current mode (see MAV_MOUNT_MODE enum)
+        bool            _yaw_lock;          // If true the gimbal's yaw target is maintained in earth-frame, if false (aka "follow") it is maintained in body-frame
         struct Location _roi_target;        // roi target location
         bool _roi_target_set;
 
@@ -199,7 +208,10 @@ private:
 
     MAV_RESULT handle_command_do_mount_configure(const mavlink_command_long_t &packet);
     MAV_RESULT handle_command_do_mount_control(const mavlink_command_long_t &packet);
+    MAV_RESULT handle_command_do_gimbal_manager_pitchyaw(const mavlink_command_long_t &packet);
     void handle_global_position_int(const mavlink_message_t &msg);
+    void handle_gimbal_device_information(const mavlink_message_t &msg);
+    void handle_gimbal_device_attitude_status(const mavlink_message_t &msg);
 };
 
 namespace AP {
