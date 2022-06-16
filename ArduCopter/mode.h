@@ -1877,6 +1877,8 @@ public:
     bool allows_autotune() const override { return true; }
     bool allows_flip() const override { return true; }
 
+    int map_ranges(int input_start, int input_end, int output_start, int output_end, int input);
+
 protected:
 
     const char *name() const override { return "FTC_1"; }
