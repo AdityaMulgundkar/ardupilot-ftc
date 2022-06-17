@@ -2,7 +2,7 @@
 #include <math.h>
 
 #define ALT_HOLD_MS 10000 // Stay at dest_alt for this much ms
-#define M1_FAULT_MS 0 // Time since M1 fault in ms
+#define M1_FAULT_MS 100 // Time since M1 fault in ms
 
 uint32_t _time_since_init = 4294967295; 
 uint32_t _time_since_alt_reached = 4294967295; 
@@ -39,7 +39,7 @@ bool ModeFTC1::init(bool ignore_checks)
 void ModeFTC1::run()
 {
     // get pilot desired climb rate
-    int32_t dest_alt = 15000;
+    int32_t dest_alt = 5000;
     int32_t curr_alt = copter.current_loc.alt;
     
     if(elapsed_flag==false) {
@@ -47,7 +47,7 @@ void ModeFTC1::run()
         int low_pwm = 1200;
         int mid_pwm = 1500;
         int high_pwm = 1800;
-        int o_pwm = map_ranges(0, dest_alt, 200, 100, curr_alt);
+        int o_pwm = map_ranges(0, dest_alt, 300, 150, curr_alt);
         
         low_pwm = mid_pwm - o_pwm;
         high_pwm = mid_pwm + o_pwm;
@@ -113,50 +113,53 @@ void ModeFTC1::run()
         int high_pwm = 1900;
         float curr_roll = AP::ahrs().get_roll();
         float curr_pitch = AP::ahrs().get_pitch();
+        
+        if(abs(curr_pitch) > 0.05) {
+            // 56 vs 43; Motor setup;
+            // left-high (56) means positive pitch
+            low_pwm = 1700;
+            high_pwm = 1800;
 
-        if(abs(curr_roll) > 0.2) {
-            gcs().send_text(MAV_SEVERITY_INFO, "Roll: %f", curr_roll);
-            // 45 vs 36; Motor setup;
-            // left-high (45) means positive roll
-            low_pwm = 1400;
-            high_pwm = 1900;
-
-            if(curr_roll < -0.2) {
+            if(curr_pitch < -0.05) {
+                gcs().send_text(MAV_SEVERITY_INFO, "Pitch NEG: %f", curr_pitch);
                 motors->rc_write(AP_MOTORS_MOT_3, low_pwm);
                 motors->rc_write(AP_MOTORS_MOT_4, high_pwm);
                 motors->rc_write(AP_MOTORS_MOT_5, high_pwm);
                 motors->rc_write(AP_MOTORS_MOT_6, low_pwm);
             }
-            else {
+            if(curr_pitch > 0.05) {
+                gcs().send_text(MAV_SEVERITY_INFO, "Pitch POS: %f", curr_pitch);
                 motors->rc_write(AP_MOTORS_MOT_3, high_pwm);
                 motors->rc_write(AP_MOTORS_MOT_4, low_pwm);
                 motors->rc_write(AP_MOTORS_MOT_5, low_pwm);
                 motors->rc_write(AP_MOTORS_MOT_6, high_pwm);
             }
         }
-        else if(abs(curr_pitch) > 0.2) {
-            gcs().send_text(MAV_SEVERITY_INFO, "Pitch: %f", curr_pitch);
-            // 56 vs 43; Motor setup;
-            // left-high (56) means positive pitch
-            low_pwm = 1300;
+        else if(abs(curr_roll) > 0.1) {
+            // 45 vs 36; Motor setup;
+            // left-high (45) means positive roll
+            low_pwm = 1700;
             high_pwm = 1800;
 
-            if(curr_pitch < -0.2) {
-                motors->rc_write(AP_MOTORS_MOT_3, high_pwm);
-                motors->rc_write(AP_MOTORS_MOT_4, high_pwm);
-                motors->rc_write(AP_MOTORS_MOT_5, low_pwm);
-                motors->rc_write(AP_MOTORS_MOT_6, low_pwm);
-            }
-            if(curr_pitch > 0.2) {
+            if(curr_roll < -0.1) {
+                gcs().send_text(MAV_SEVERITY_INFO, "Roll NEG: %f", curr_roll);
                 motors->rc_write(AP_MOTORS_MOT_3, low_pwm);
                 motors->rc_write(AP_MOTORS_MOT_4, low_pwm);
                 motors->rc_write(AP_MOTORS_MOT_5, high_pwm);
                 motors->rc_write(AP_MOTORS_MOT_6, high_pwm);
+            }
+            if(curr_roll > 0.1) {
+                gcs().send_text(MAV_SEVERITY_INFO, "Roll POS: %f", curr_roll);
+                motors->rc_write(AP_MOTORS_MOT_3, high_pwm);
+                motors->rc_write(AP_MOTORS_MOT_4, high_pwm);
+                motors->rc_write(AP_MOTORS_MOT_5, low_pwm);
+                motors->rc_write(AP_MOTORS_MOT_6, low_pwm);
             }
         }
         else {
+            gcs().send_text(MAV_SEVERITY_INFO, "Reaching alt");
             int l_pwm = map_ranges(0, dest_alt, 200, 100, curr_alt);
-            int h_pwm = map_ranges(0, dest_alt, 400, 100, curr_alt);
+            int h_pwm = map_ranges(0, dest_alt, 400, 250, curr_alt);
             
             low_pwm = mid_pwm - l_pwm;
             high_pwm = mid_pwm + h_pwm;
