@@ -38,6 +38,13 @@ bool ModeFTC1::init(bool ignore_checks)
 // should be called at 100hz or more
 void ModeFTC1::run()
 {
+    // Disable selected motor
+    // motors->remove_motor(0);
+    // copter.remove_motor(0);
+    // Reconfigure motor effectiveness (rpy factors)
+
+    // Exit mode? Or stabilize?
+
     // get pilot desired climb rate
     int32_t dest_alt = 5000;
     int32_t curr_alt = copter.current_loc.alt;

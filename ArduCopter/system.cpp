@@ -432,11 +432,11 @@ void Copter::allocate_motors(void)
             AP_Param::set_frame_type_flags(AP_PARAM_FRAME_HELI);
             break;
 #endif
-    }
         case AP_Motors::MOTOR_FRAME_FAULT_TOLERANT:
-            motors = new AP_MotorsMatrix(copter.scheduler.get_loop_rate_hz());
-            motors_var_info = AP_MotorsMatrix::var_info;
+            motors = new AP_MotorsMatrix_FTC(copter.scheduler.get_loop_rate_hz());
+            motors_var_info = AP_MotorsMatrix_FTC::var_info;
             break;
+    }
 
     if (motors == nullptr) {
         AP_BoardConfig::allocation_error("FRAME_CLASS=%u", (unsigned)g2.frame_class.get());
