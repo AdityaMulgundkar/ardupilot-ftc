@@ -377,6 +377,8 @@ public:
 
         k_param_vehicle = 257, // vehicle common block of parameters
 
+        k_param_ftc_flag_1,
+
         // the k_param_* space is 9-bits in size
         // 511: reserved
     };
@@ -472,6 +474,7 @@ public:
     AP_Float                acro_rp_expo;
 #endif
 
+    AP_Int8                 ftc_flag_1;
     // Note: keep initializers here in the same order as they are declared
     // above.
     Parameters()

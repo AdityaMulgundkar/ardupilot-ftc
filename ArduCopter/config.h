@@ -589,6 +589,10 @@
 # define THROW_VERTICAL_SPEED   50.0f   // motors start when vehicle reaches this total 3D speed in cm/s
 #endif
 
+#ifndef FTC_FLAG_1
+ # define FTC_FLAG_1      -1     // default value for my new parameter
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 // Logging control
 //

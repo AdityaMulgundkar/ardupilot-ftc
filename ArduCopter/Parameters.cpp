@@ -736,6 +736,13 @@ const AP_Param::Info Copter::var_info[] = {
     GSCALAR(throw_motor_start, "THROW_MOT_START", (float)ModeThrow::PreThrowMotorState::STOPPED),
 #endif
 
+    // @Param: FTC_FLAG_1
+    // @DisplayName: FTC 1 Flag
+    // @Description: Used for resetting the design/frame of the Copter
+    // @Range: -32768 32767
+    // @User: Advanced
+    GSCALAR(ftc_flag_1, "FTC_FLAG_1", -1),
+
 #if OSD_ENABLED || OSD_PARAM_ENABLED
     // @Group: OSD
     // @Path: ../libraries/AP_OSD/AP_OSD.cpp
