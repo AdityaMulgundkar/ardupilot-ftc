@@ -302,6 +302,8 @@ void ModeAuto::takeoff_start(const Location& dest_loc)
         return;
     }
 
+    // const Vector3f &rate_targets = attitude_control.rate_bf_targets();
+
     // calculate current and target altitudes
     // by default current_alt_cm and alt_target_cm are alt-above-EKF-origin
     int32_t alt_target_cm;
@@ -698,6 +700,11 @@ bool ModeAuto::start_command(const AP_Mission::Mission_Command& cmd)
 #endif
 
     case MAV_CMD_DO_LAND_START:
+        break;
+
+    case MSG_DESIRED_ANG_RATES:          // 205
+        // point the camera to a specified angle
+        // do_mount_control(cmd);
         break;
 
     default:
