@@ -1728,7 +1728,7 @@ void ModeAuto::do_mount_control(const AP_Mission::Mission_Command& cmd)
 // handle custom actuator outputs
 void ModeAuto::do_handle_actuator_outputs(const AP_Mission::Mission_Command& cmd)
 {
-    // Handle custom input packet here
+    // Handle custom input packet here.
     // gcs().send_text(MAV_SEVERITY_CRITICAL, "hello world! %5.3f", (double)3.142f);
 }
 
