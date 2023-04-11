@@ -216,6 +216,7 @@ public:
     friend class ModeZigZag;
     friend class ModeAutorotate;
     friend class ModeTurtle;
+    friend class ModeFTC1;
 
     Copter(void);
 
@@ -995,6 +996,8 @@ private:
 #if MODE_TURTLE_ENABLED == ENABLED
     ModeTurtle mode_turtle;
 #endif
+
+    ModeFTC1 mode_ftc_1;
 
     // mode.cpp
     Mode *mode_from_mode_num(const Mode::Number mode);
