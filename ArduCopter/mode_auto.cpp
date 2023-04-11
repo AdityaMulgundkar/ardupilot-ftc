@@ -702,9 +702,9 @@ bool ModeAuto::start_command(const AP_Mission::Mission_Command& cmd)
     case MAV_CMD_DO_LAND_START:
         break;
 
-    case MSG_DESIRED_ANG_RATES:          // 205
+    case MSG_FTC_ACTUATOR_CONTROL:          // 205
         // point the camera to a specified angle
-        // do_mount_control(cmd);
+        do_handle_actuator_outputs(cmd);
         break;
 
     default:
@@ -1723,6 +1723,13 @@ void ModeAuto::do_mount_control(const AP_Mission::Mission_Command& cmd)
     // pass the target angles to the camera mount
     copter.camera_mount.set_angle_targets(cmd.content.mount_control.roll, cmd.content.mount_control.pitch, cmd.content.mount_control.yaw);
 #endif
+}
+
+// handle custom actuator outputs
+void ModeAuto::do_handle_actuator_outputs(const AP_Mission::Mission_Command& cmd)
+{
+    // Handle custom input packet here
+    // gcs().send_text(MAV_SEVERITY_CRITICAL, "hello world! %5.3f", (double)3.142f);
 }
 
 #if WINCH_ENABLED == ENABLED
