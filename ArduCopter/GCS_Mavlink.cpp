@@ -1398,6 +1398,14 @@ void GCS_MAVLINK_Copter::handleMessage(const mavlink_message_t &msg)
         copter.g2.toy_mode.handle_message(msg);
         break;
 #endif
+    
+    case MSG_FTC_ACTUATOR_CONTROL:
+    case MAVLINK_MSG_ID_FTC_ACTUATOR_CONTROL:
+        // decode
+        mavlink_ftc_actuator_control_t packet;
+        mavlink_msg_ftc_actuator_control_decode(&msg, &packet);
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "hello world!");
+        break;
         
     default:
         handle_common_message(msg);
