@@ -1555,7 +1555,8 @@ void GCS_MAVLINK_Copter::handleMessage(const mavlink_message_t &msg)
         mavlink_ftc_actuator_control_t packet;
         mavlink_msg_ftc_actuator_control_decode(&msg, &packet);
         // gcs().send_text(MAV_SEVERITY_INFO, "%s", copter.flightmode->name());
-        if (copter.flightmode->name() == "FTC_1")
+        // if (copter.flightmode->name() == "FTC_1")
+        if (strcmp(copter.flightmode->name(), "FTC_1") == 0)
         {
             // ModeFTC1::parse_outputs(packet.controls);
             ModeFTC1 m;
