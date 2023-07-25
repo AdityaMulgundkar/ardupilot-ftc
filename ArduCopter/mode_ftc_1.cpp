@@ -52,21 +52,7 @@ void ModeFTC1::run()
     if (!copter.motors->armed())
     {
         copter.motors->armed(true);
-        // copter.flightmode->do_user_takeoff(1, true);
-        do_user_takeoff(10, true);
     }
-
-    // AP_Mission::Mission_Command cmd = {};
-
-    // if the mission is empty save a takeoff command
-    // set our location ID to 16, MAV_CMD_NAV_WAYPOINT
-    // cmd.id = MAV_CMD_NAV_TAKEOFF;
-    // cmd.content.location.alt = MAX(copter.current_loc.alt, 100);
-    // ModeAuto->do_takeoff(cmd);
-    // ModeAuto::do_takeoff(cmd);
-    // takeoff_start(cmd.content.location);
-
-
     copter.motors->rc_write(AP_MOTORS_MOT_1, last_control_outputs[0]);
     copter.motors->rc_write(AP_MOTORS_MOT_2, last_control_outputs[1]);
     copter.motors->rc_write(AP_MOTORS_MOT_3, last_control_outputs[2]);
