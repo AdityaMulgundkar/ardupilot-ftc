@@ -216,7 +216,8 @@ public:
     friend class ModeZigZag;
     friend class ModeAutorotate;
     friend class ModeTurtle;
-
+    friend class ModeFTC1;
+    
     Copter(void);
 
 private:
@@ -1000,6 +1001,7 @@ private:
     Mode *mode_from_mode_num(const Mode::Number mode);
     void exit_mode(Mode *&old_flightmode, Mode *&new_flightmode);
 
+    ModeFTC1 mode_ftc_1;
 public:
     void failsafe_check();      // failsafe.cpp
 };
