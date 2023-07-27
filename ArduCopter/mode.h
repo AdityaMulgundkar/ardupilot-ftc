@@ -1869,6 +1869,7 @@ public:
     Number mode_number() const override { return Number::FTC_1; }
 
     bool init(bool ignore_checks) override;
+    void exit() override;
     virtual void run() override;
 
     bool requires_GPS() const override { return false; }
@@ -1879,8 +1880,6 @@ public:
     bool allows_autotune() const override { return true; }
     bool allows_flip() const override { return true; }
     void parse_outputs(uint16_t *controls);
-
-    int map_ranges(int input_start, int input_end, int output_start, int output_end, int input);
 
 protected:
 
